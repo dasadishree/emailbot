@@ -1,0 +1,131 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+body{
+    font-family: sans-serif;
+    background: #b8cfe8;
+    min-height: 100vh;
+}
+#navbar{
+    display: flex;
+    gap:12px;
+    padding: 20px 30px;
+    flex-wrap: wrap;
+}
+.nav-btn{
+    padding: 10px 20px;
+    border-radius: 25px;
+    border: 2px solid #1a1a2e;
+    background: #b8cfe8;
+    font-size: 14px;
+    cursor: pointer;
+}
+.nav-btn.active{
+    background: white;
+}
+.nav-btn.disabled{
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+#hero{
+    text-align: center;
+    padding: 40px 20px 30px;
+}
+h1{
+    font-size: 48px;
+    font-style: italic;
+    margin-bottom:16px;
+}
+.highlight{
+    background: #f5e642;
+    padding: 4px 12px;
+}
+#hero p{
+    font-size: 16px;
+    max-width: 600px;
+    margin: 0 auto 24px;
+}
+#input-row{
+    display: flex;
+    justify-content: center;
+    gap:0;
+}
+#school-input{
+    width:400px;
+    padding: 12px 18px;
+    font-size: 15px;
+    border: 2px solid #1a1a2e;
+    border-right: none;
+    border-radius: 25px 0 0 25px;
+    outline: none;
+    background: white;
+}
+#search-btn{
+    padding: 12px 18px;
+    font-size: 15px;
+    border: 2px solid #1a1a2e;
+    border-left: none;
+    border-radius: 0 25px 25px 0;
+    background: white;
+    cursor: pointer;
+}
+#status{
+    text-align: center;
+    padding:16px;
+    font-size:14px;
+    color: #333;
+}
+#results{
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 16px;
+    padding: 10px 30px 30px;
+}
+.card{
+    background: #1a2e4a;
+    color: white; 
+    border-radius: 12px;
+    padding: 20px;
+    min-width: 260px;
+    max-width:260px;
+    flex-shrink:0;
+}
+.card-name{
+    background: #f5e642;
+    color: #1a1a2e; 
+    font-style: italic;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 4px 10px;
+    margin-bottom: 14px;
+    display: inline-block;
+}
+.card-role{
+    font-size: 13px;
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+.card-topics{
+    list-style: disc;
+    padding-left: 18px;
+    font-size: 13px;
+    margin-bottom: 16px;
+    line-height: 1.8;
+}
+.card-btn{
+    background: white;
+    color: #1a1a2e;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 14px;
+    font-size: 12px;
+    font-style: italic;
+    cursor: pointer;
+    width: 100%;
+}
+.card-btn:hover{
+    background: #f5e642;
+}

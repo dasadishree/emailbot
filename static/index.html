@@ -5,11 +5,21 @@
     </head>
 
     <body>
-        <h1>Research Email Bot/Helper</h1>
-        <p>Type in any university to get help finding professors in your desired fields (for now this is set to Adishree's interests of neuroscience, psych, tech, etc)</p>
-        <div id="input-row">
-            <input type="text" id="school-input" placeholder="Enter a university/research institution name"/>
-            <button id="search-btn" onclick="search()">Search</button>
+        <nav id="navbar">
+            <button class="nav-btn active">find new mentors</button>
+            <button class="nav-btn disabled">past herricks student's mentors</button>
+            <button class="nav-btn disabled">help writing papers/journal summaries</button>
+            <button class="nav-btn disabled">help writing emails</button>
+            <button class="nav-btn disabled">previous year examples</button>
+        </nav>
+
+        <div id="hero">
+            <h1><span class="highlight">research helper</span></h1>
+            <p>type in any university to get help finding professors in your desired fields (for now this is set to Adishree's interests of neuroscience, psych, tech, etc)</p>
+            <div id="input-row">
+                <input type="text" id="school-input" placeholder="search a university..."/>
+                <button id="search-btn" onclick="search()">🔍</button>
+            </div>
         </div>
 
         <div id="status"></div>
