@@ -33,8 +33,7 @@ body = {
             - Do NOT include anyone who is publicly known to not accept high school students or interns
             - If you are unsure whether someone accepts high schoolers, include them
 
-            Return a JSON object with a 'professors' key containing a list. Each professor should have: name, role, department, topics (list), research_summary. """
-        }
+Return a JSON object with a 'professors' key containing a list. Each professor should have: name, role, department, topics (list), research_summary, email (or null if unknown), profile__url (their faculty page URL, or null if unknown)."""        }
     ]
 }
 
