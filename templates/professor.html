@@ -1,0 +1,184 @@
+<html>
+    <head>
+        <title>{{name}}</title>
+        <link rel="stylesheet" href="/static/style.css">
+    </head>
+    <body>
+        <nav id="navbar">
+            <a href="/" class="nac-btn active">← back to search</a>
+        </nav>
+
+        <div id="prof-hero">
+            <h1><span class="highlight" id="prof-name">{{name}}</span></h1>
+            <p class="prof-meta" id="prof-meta">{{role}} · {{department}} · {{school}}</p>
+        </div>
+
+        <div id="prof-body">
+            <div class="prof-section">
+                <h2>Research Topics</h2>
+                <div class="tag-row" id="prof-topics">
+                    {% for topic in research_topics %}
+                        <div class="tag">{{topic}}</div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="prof-section">
+                <h2>Research Summary</h2>
+                <p id="prof-summary">{{summary}}</p>
+            </div>
+
+            <div class="prof-section" id="prof-links-section" {% if not profile_url and not scholar_author_url %}style="display:none"{% endif %}>
+                <h2>Links</h2>
+                <div id="prof-links" data-scholar-url="{{ scholar_author_url or '' }}">
+                    {% if profile_url %}
+                        <a href="{{ profile_url }}" target="_blank" rel="noopener noreferrer" class="prof-link">Faculty Profile →</a>
+                    {% elif scholar_author_url %}
+                        <a href="{{ scholar_author_url }}" target="_blank" rel="noopener noreferrer" class="prof-link">Semantic Scholar Profile →</a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="prof-section">
+                <h2>Contact</h2>
+                <div id="prof-contact">
+                    {% if email %}
+                        <p><a href="mailto:{{ email }}" class="prof-link">{{ email }}</a></p>
+                        <a href="mailto:{{ email }}" class="card-btn" style="display:inline-block; width:auto; padding:10px 20px; margin-top:10px; text-decoration:none; text-align:center;">write an email to {{ name }}</a>
+                    {% else %}
+                        <p style="color:#888">No email found</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="prof-section">
+                <h2>Publications</h2>
+                {% if papers %}
+                    {% for paper in papers %}
+                        <div class="paper-card">
+                            <div class="paper-title">
+                                {% if paper.link %}
+                                    <a href="{{ paper.link }}" target="_blank" rel="noopener noreferrer">{{ paper.title }}</a>
+                                {% else %}
+                                    {{ paper.title }}
+                                {% endif %}
+                            </div>
+                            <div class="paper-year">{{paper.year}}</div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                        <p style="color:#888">No publications found</p>
+                {% endif %}
+            </div>
+        </div>
+        <script>
+            (function () {
+                const raw = localStorage.getItem("profDetail");
+                if (!raw) return;
+                let prof;
+                try {
+                    prof = JSON.parse(raw);
+                } catch {
+                    return;
+                }
+
+                function setTags(container, items) {
+                    container.replaceChildren();
+                    for (const item of items) {
+                        const tag = document.createElement("div");
+                        tag.className = "tag";
+                        tag.textContent = item;
+                        container.appendChild(tag);
+                    }
+                }
+
+                const nameEl = document.getElementById("prof-name");
+                if (prof.name && nameEl) nameEl.textContent = prof.name;
+
+                const meta = document.getElementById("prof-meta");
+                if (meta) {
+                    meta.textContent = [prof.role, prof.department, prof.school]
+                        .filter(Boolean)
+                        .join(" · ");
+                }
+
+                const topicsEl = document.getElementById("prof-topics");
+                if (topicsEl && Array.isArray(prof.topics) && prof.topics.length) {
+                    setTags(topicsEl, prof.topics);
+                }
+
+                const summaryEl = document.getElementById("prof-summary");
+                if (summaryEl && prof.summary) summaryEl.textContent = prof.summary;
+
+                function addExternalLink(container, href, label) {
+                    const a = document.createElement("a");
+                    a.href = href;
+                    a.target = "_blank";
+                    a.rel = "noopener noreferrer";
+                    a.className = "prof-link";
+                    a.textContent = label;
+                    container.appendChild(a);
+                }
+
+                async function resolveProfileUrl(candidate, fallback) {
+                    if (candidate) {
+                        try {
+                            const res = await fetch(
+                                "/api/check-url?url=" + encodeURIComponent(candidate)
+                            );
+                            const data = await res.json();
+                            if (data.ok && data.url) return { url: data.url, label: "Faculty Profile →" };
+                        } catch (_) {}
+                    }
+                    if (fallback) {
+                        return { url: fallback, label: "Semantic Scholar Profile →" };
+                    }
+                    return null;
+                }
+
+                const linksSection = document.getElementById("prof-links-section");
+                const linksEl = document.getElementById("prof-links");
+                if (linksEl && prof.profile_url) {
+                    const fallback = linksEl.dataset.scholarUrl || "";
+                    resolveProfileUrl(prof.profile_url, fallback).then((resolved) => {
+                        linksEl.replaceChildren();
+                        if (resolved) {
+                            addExternalLink(linksEl, resolved.url, resolved.label);
+                            if (linksSection) linksSection.style.display = "";
+                        } else if (linksSection) {
+                            linksSection.style.display = "none";
+                        }
+                    });
+                }
+
+                const contactEl = document.getElementById("prof-contact");
+                if (contactEl) {
+                    contactEl.replaceChildren();
+                    const email = (prof.email || "").trim();
+                    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (email && emailPattern.test(email)) {
+                        const emailP = document.createElement("p");
+                        const emailLink = document.createElement("a");
+                        emailLink.href = "mailto:" + email;
+                        emailLink.className = "prof-link";
+                        emailLink.textContent = email;
+                        emailP.appendChild(emailLink);
+                        contactEl.appendChild(emailP);
+                        const btn = document.createElement("a");
+                        btn.href = "mailto:" + email;
+                        btn.className = "card-btn";
+                        btn.style.cssText =
+                            "display:inline-block; width:auto; padding:10px 20px; margin-top:10px; text-decoration:none; text-align:center;";
+                        btn.textContent = "write an email to " + (prof.name || "");
+                        contactEl.appendChild(btn);
+                    } else {
+                        const none = document.createElement("p");
+                        none.style.color = "#888";
+                        none.textContent = "No email found";
+                        contactEl.appendChild(none);
+                    }
+                }
+            })();
+        </script>
+    </body>
+</html>
