@@ -130,3 +130,184 @@ h1{
 .card-btn:hover{
     background: #f5e642;
 }
+
+/* detials page */
+#prof-hero{
+    text-align: center;
+    padding: 40px 20px 20px;
+}
+.prof-meta{
+    color: #444;
+    margin-top: 8px;
+    font-size:15px;
+}
+#prof-body{
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 40px;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px 30px 60px;
+}
+.prof-sidebar{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.prof-sidebar-card{
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+}
+.prof-sidebar-name{
+    font-style: italic;
+    font-size: 32px;
+    font-weight: bold;
+    background: #f5e642;
+    padding: 6px 14px;
+    display: inline-block;
+    margin-bottom: 20px;
+}
+.prof-sidebar-section h3{
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+.prof-sidebar-section ul{
+    list-style: disc;
+    padding-left: 18px;
+    font-size: 14px;
+    line-height:2;
+}
+.notes-card{
+    background: #f5f0e8;
+    border-radius: 12px;
+    padding: 20px;
+    font-size: 14px;
+}
+.notes-header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 14px;
+}
+.notes-tag{
+    background: #f5e642;
+    border: 2px solid #b8860b;
+    font-weight: bold;
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-bottom: 12px;
+}
+.notes-email-btn{
+    background: #f5e642;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 13px;
+    cursor: pointer;
+    display: block;
+    margin-bottom: 10px;
+    text-decoration: none;
+    color: #1a1a2e;
+}
+.notes-email-btn:hover{
+    background: #e8d800;
+}
+.notes-email-addr{
+    font-size: 13px;
+    color: #333;
+}
+.notes-email-addr span{
+    font-weight: bold;
+}
+.publications-grid{
+    display:grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 12px;
+}
+.pub-card{
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #ddd;
+    font-size: 12px;
+}
+.pub-card-img{
+    width: 100%;
+    aspect-ratio: 1;
+    background: #e8e0d0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    text-align: center;
+    font-size: 11px;
+    color: #555;
+    line-height: 1.4;
+}
+.pub-card-img a{
+    color: #1a2e4a;
+    text-decoration: none;
+    font-weight: 500;
+}
+.pub-card-img a:hover{
+    text-decoration: underline;
+}
+.pub-card-label{
+    padding: 6px 8px;
+    font-size: 11px;
+    color: #888;
+    border-top: 1px solid #eee;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.prof-section{
+    margin-bottom: 0;
+}
+.prof-section h2{
+    font-size: 13px;
+    font-weight: bold;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color:#555;
+}
+.tag-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-bottom:16px;
+}
+.tag{
+    font-size: 12px;
+    padding: 4px 12px;
+    background: #1a2e4a;
+    color: white;
+    border-radius: 20px;
+}
+.prof-link{
+    color: #1a2e4a;
+    font-size: 14px;
+    display: inline-block;
+    margin-bottom: 8px;
+    text-decoration: none;
+}
+.prof-link:hover{
+    text-decoration: underline;
+}
+.nac-btn{
+    padding: 10px 20px;
+    border-radius: 25px;
+    border: 2px solid #1a1a2e;
+    background: #b8cfe8;
+    font-size: 14px;
+    cursor:pointer;
+    text-decoration: none;
+    color: #1a1a2e;
+}

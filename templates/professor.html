@@ -8,69 +8,77 @@
             <a href="/" class="nac-btn active">← back to search</a>
         </nav>
 
-        <div id="prof-hero">
-            <h1><span class="highlight" id="prof-name">{{name}}</span></h1>
-            <p class="prof-meta" id="prof-meta">{{role}} · {{department}} · {{school}}</p>
-        </div>
-
         <div id="prof-body">
-            <div class="prof-section">
-                <h2>Research Topics</h2>
-                <div class="tag-row" id="prof-topics">
-                    {% for topic in research_topics %}
-                        <div class="tag">{{topic}}</div>
-                    {% endfor %}
+            <div class="publications-main">
+                <div class="prof-section">
+                    <h2>Publications</h2>
                 </div>
-            </div>
-
-            <div class="prof-section">
-                <h2>Research Summary</h2>
-                <p id="prof-summary">{{summary}}</p>
-            </div>
-
-            <div class="prof-section" id="prof-links-section" {% if not profile_url and not scholar_author_url %}style="display:none"{% endif %}>
-                <h2>Links</h2>
-                <div id="prof-links" data-scholar-url="{{ scholar_author_url or '' }}">
-                    {% if profile_url %}
-                        <a href="{{ profile_url }}" target="_blank" rel="noopener noreferrer" class="prof-link">Faculty Profile →</a>
-                    {% elif scholar_author_url %}
-                        <a href="{{ scholar_author_url }}" target="_blank" rel="noopener noreferrer" class="prof-link">Semantic Scholar Profile →</a>
-                    {% endif %}
-                </div>
-            </div>
-
-            <div class="prof-section">
-                <h2>Contact</h2>
-                <div id="prof-contact">
-                    {% if email %}
-                        <p><a href="mailto:{{ email }}" class="prof-link">{{ email }}</a></p>
-                        <a href="mailto:{{ email }}" class="card-btn" style="display:inline-block; width:auto; padding:10px 20px; margin-top:10px; text-decoration:none; text-align:center;">write an email to {{ name }}</a>
-                    {% else %}
-                        <p style="color:#888">No email found</p>
-                    {% endif %}
-                </div>
-            </div>
-
-            <div class="prof-section">
-                <h2>Publications</h2>
-                {% if papers %}
-                    {% for paper in papers %}
-                        <div class="paper-card">
-                            <div class="paper-title">
-                                {% if paper.link %}
-                                    <a href="{{ paper.link }}" target="_blank" rel="noopener noreferrer">{{ paper.title }}</a>
-                                {% else %}
-                                    {{ paper.title }}
-                                {% endif %}
+                <div class="publications-grid">
+                    {% if papers %}
+                        {% for paper in papers %}
+                            <div class="pub-card">
+                                <div class="pub-card-img">
+                                    {% if paper.link %}
+                                        <a href="{{paper.link}}" target="_blank" rel="noopener noreferrer">{{paper.title}}</a>
+                                    {% else %}
+                                        {{ paper.title }}
+                                    {% endif %}
+                                </div>
+                                <div class="pub-card-label">{{paper.year or '-'}}</div>
                             </div>
-                            <div class="paper-year">{{paper.year}}</div>
-                        </div>
-                    {% endfor %}
-                {% else %}
-                        <p style="color:#888">No publications found</p>
+                        { % end for %}
+                    {% else %}
+                        <p style="color:#888; grid-column:1/-1;">No publications found</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="prof-sidebar">
+                <div class="prof-sidebar-card">
+                    <div class="prof-sidebar-name">{{name}}</div>
+                    <div class="prof-sidebar-section">
+                        <h3>Lab Role</h3>
+                        <ul>
+                            <li>{{ role }}</li>
+                            {% for topic in research_topics %}
+                                <li>{{ topic }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="notes-card">
+                    <div class="notes-header">
+                        <span>← Notes</span>
+                        <span>...</span>
+                    </div>
+                    <div class="notes-tag">EMAILING</div>
+
+                    {% if email %}
+                        <a href="mailto:{{email}}" class="notes-email-btn">Write an email to {{name}}</a>
+                        <div class="notes-email-addr"><span>Email</span>: {{email}}</div>
+                    {% else %} 
+                        <p style="color:#888; font-size: 13px">No email found</p>
+                    {% endif %}
+                </div>
+
+                {% if profile_url or scholar_author_url %}
+                <div class="prof-sidebar-card">
+                    <div class="prof-sidebar-section">
+                        <h3>Links</h3>
+                        {% if profile_url %}
+                            <a href="{{profile_url}}" target="_blank" class="prof-link">Faculty Profile -></a><br>
+                        {% endif %}
+                        {% if scholar_author url}
+                            <a href="{{scholar_author_url}}" target="_blank" class="prof-link">Semantic Scholar Profile -></a>
+                        {% endif %}
+                    </div>
+                </div>
                 {% endif %}
             </div>
         </div>
+        <!-- end -->
+            
         <script>
             (function () {
                 const raw = localStorage.getItem("profDetail");
