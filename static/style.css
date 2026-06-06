@@ -92,6 +92,27 @@ h1{
     font-size:14px;
     color: #333;
 }
+#status-warnings{
+    max-width: 640px;
+    margin: 0 auto 12px;
+    padding: 0 20px;
+}
+.api-warning{
+    background: #fff3cd;
+    border: 2px solid #e6b800;
+    color: #5c4a00;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 0;
+}
+.api-notice{
+    color: #888;
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 0;
+}
 #results{
     display: flex;
     flex-direction: row;
@@ -122,6 +143,12 @@ h1{
     font-size: 13px;
     font-weight: bold;
     margin-bottom: 6px;
+}
+.card-match{
+    font-size: 11px;
+    color: #b8cfe8;
+    margin-top: 10px;
+    line-height: 1.4;
 }
 .card-topics{
     list-style: disc;
@@ -324,4 +351,9 @@ h1{
     cursor:pointer;
     text-decoration: none;
     color: #1a1a2e;
+}
+a.nav-btn{
+    text-decoration: none;
+    color: #1a1a2e;
+    background: white;
 }

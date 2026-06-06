@@ -81,5 +81,71 @@
         if (linksCard) linksCard.style.display = hasLinks ? "" : "none";
     }
 
+    function isApiLimitMessage(message) {
+        const text = (message || "").toLowerCase();
+        return (
+            text.includes("rate limit") ||
+            text.includes("unavailable") ||
+            text.includes("could not be loaded") ||
+            text.includes("could not load")
+        );
+    }
+
+    function setPublicationsStatus(message) {
+        const grid = document.getElementById("publications-grid");
+        if (!grid || grid.querySelector(".pub-card")) return;
+
+        let statusEl = document.getElementById("publications-status");
+        if (!statusEl) {
+            statusEl = document.createElement("p");
+            statusEl.id = "publications-status";
+            statusEl.style.gridColumn = "1 / -1";
+            grid.appendChild(statusEl);
+        }
+        statusEl.textContent = message;
+        statusEl.className = isApiLimitMessage(message) ? "api-warning" : "api-notice";
+    }
+
+    function renderPublications(papers) {
+        const grid = document.getElementById("publications-grid");
+        if (!grid || !Array.isArray(papers) || !papers.length) return;
+        if (grid.querySelector(".pub-card")) return;
+
+        const statusEl = document.getElementById("publications-status");
+        if (statusEl) statusEl.remove();
+        grid.replaceChildren();
+        for (const paper of papers) {
+            const card = document.createElement("div");
+            card.className = "pub-card";
+
+            const titleEl = document.createElement("div");
+            titleEl.className = "pub-card-img";
+            if (paper.link) {
+                const link = document.createElement("a");
+                link.href = paper.link;
+                link.target = "_blank";
+                link.rel = "noopener noreferrer";
+                link.textContent = paper.title || "Untitled";
+                titleEl.appendChild(link);
+            } else {
+                titleEl.textContent = paper.title || "Untitled";
+            }
+
+            const yearEl = document.createElement("div");
+            yearEl.className = "pub-card-label";
+            yearEl.textContent = paper.year || "-";
+
+            card.appendChild(titleEl);
+            card.appendChild(yearEl);
+            grid.appendChild(card);
+        }
+    }
+
+    if (prof.publications && prof.publications.length) {
+        renderPublications(prof.publications);
+    } else if (prof.publications_warning) {
+        setPublicationsStatus(prof.publications_warning);
+    }
+
     refreshLinks();
 })();

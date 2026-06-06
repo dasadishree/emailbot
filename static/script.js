@@ -1,3 +1,20 @@
+function clearWarnings() {
+    const warnEl = document.getElementById("status-warnings")
+    if (warnEl) warnEl.replaceChildren()
+}
+
+function showWarnings(warnings) {
+    const warnEl = document.getElementById("status-warnings")
+    if (!warnEl || !warnings || !warnings.length) return
+    clearWarnings()
+    for (const warning of warnings) {
+        const p = document.createElement("p")
+        p.className = "api-warning"
+        p.textContent = warning
+        warnEl.appendChild(p)
+    }
+}
+
 // search by school and research category
 async function search() {
     const schoolInput = document.getElementById("school-input")
@@ -19,6 +36,7 @@ async function search() {
     }
     btn.disabled = true
     status.textContent = "Searching " + school + " for " + category + "..."
+    clearWarnings()
     results.innerHTML = ""
 
     let data
@@ -56,16 +74,21 @@ async function search() {
     status.textContent =
         "found " + data.professors.length + " professors at " + data.school +
         (data.category ? " in " + data.category : "")
+    showWarnings(data.warnings)
 
     for(const prof of data.professors) {
         const card = document.createElement("div")
         card.className = "card"
         const topics = Array.isArray(prof.topics) ? prof.topics : []
         const topicsHTML = topics.map(t => `<li>${t}</li>`).join("")
+        const matchNote = prof.matched_areas && prof.matched_areas.length
+            ? `<div class="card-match">matches: ${prof.matched_areas.join(", ")}</div>`
+            : ""
         card.innerHTML = `
             <div class="card-name">${prof.name}</div>
             <div class="card-role">${prof.role}</div>
             <ul class="card-topics">${topicsHTML}</ul>
+            ${matchNote}
             `
         const btn = document.createElement("button")
         btn.className = "card-btn"
@@ -93,7 +116,9 @@ function openProf(prof, school) {
         summary: prof.research_summary,
         email: prof.email || "",
         profile_url: prof.profile_url || "",
-        scholar_url: prof.scholar_url || ""
+        scholar_url: prof.scholar_url || "",
+        publications: prof.publications || [],
+        publications_warning: prof.publications_warning || ""
     }))
     const params = new URLSearchParams({ name: prof.name, school })
     if (prof.profile_url) params.set("profile_url", prof.profile_url)

@@ -13,7 +13,7 @@
                 <div class="prof-section">
                     <h2>Publications</h2>
                 </div>
-                <div class="publications-grid">
+                <div class="publications-grid" id="publications-grid">
                     {% if papers %}
                         {% for paper in papers %}
                             <div class="pub-card">
@@ -28,7 +28,9 @@
                             </div>
                         {% endfor %}
                     {% else %}
-                        <p style="color:#888; grid-column:1/-1;">No publications found</p>
+                        <p id="publications-status" class="{% if publications_warning and ('rate limit' in publications_warning.lower() or 'unavailable' in publications_warning.lower() or 'could not' in publications_warning.lower()) %}api-warning{% else %}api-notice{% endif %}" style="grid-column:1/-1;">
+                            {{ publications_warning or "No publications found for this professor." }}
+                        </p>
                     {% endif %}
                 </div>
             </div>
