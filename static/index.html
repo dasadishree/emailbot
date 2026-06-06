@@ -5,21 +5,24 @@
     </head>
 
     <body>
-        <center>
-            <nav id="navbar" align="center">
-                <button class="nav-btn active">find new mentors</button>
-                <button class="nav-btn disabled">past herricks student's mentors</button>
-                <button class="nav-btn disabled">help writing papers/journal summaries</button>
-                <button class="nav-btn disabled">help writing emails</button>
-                <button class="nav-btn disabled">previous year examples</button>
-            </nav>
-        </center>
+        <nav id="navbar">
+            <button class="nav-btn active">find new mentors</button>
+            <a href="https://docs.google.com/spreadsheets/d/18w40jiZjZiCOgTwDqlDRnTfTt3lYklaTQ6B7IC5_Wps/edit?usp=sharing" target="_blank" class="nav-btn">past herricks student's mentors</a>
+            <button class="nav-btn disabled">help writing papers/journal summaries</button>
+        </nav>
         <div id="hero">
             <h1><span class="highlight">research helper</span></h1>
-            <p>type in any university to get help finding professors in your desired fields (for now this is set to Adishree's interests. search may take a min!)</p>
-            <div id="input-row">
-                <input type="text" id="school-input" placeholder="search a university..."/>
-                <button id="search-btn" onclick="search()">🔍</button>
+            <p>search a university/research institution and your research areas of interest! searches may take a minute!</p>
+            <div id="search-form">
+                <div class="search-row">
+                    <label class="search-label" for="school-input">University</label>
+                    <input type="text" id="school-input" class="search-input" placeholder="Enter university/research institution name"/>
+                </div>
+                <div class="search-row">
+                    <label class="search-label" for="category-input">Research areas</label>
+                    <input type="text" id="category-input" class="search-input" placeholder="Enter research interest/field topics"/>
+                </div>
+                <button id="search-btn" onclick="search()">⌕ search</button>
             </div>
         </div>
 
