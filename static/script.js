@@ -71,7 +71,8 @@ function openProf(prof, school) {
         topics: prof.topics,
         summary: prof.research_summary,
         email: prof.email || "",
-        profile_url: prof.profile_url || ""
+        profile_url: prof.profile_url || "",
+        scholar_url: prof.scholar_url || ""
     }))
     const params = new URLSearchParams({ name: prof.name, school })
     if (prof.profile_url) params.set("profile_url", prof.profile_url)

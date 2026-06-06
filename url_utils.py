@@ -5,6 +5,14 @@ import requests
 
 _USER_AGENT = "ResearchEmailBot/1.0 (educational project)"
 
+_TRUSTED_HOST_SUFFIXES = (
+    "doi.org",
+    "arxiv.org",
+    "pubmed.ncbi.nlm.nih.gov",
+    "semanticscholar.org",
+    "ncbi.nlm.nih.gov",
+)
+
 
 def normalize_url(url):
     # return working url
@@ -25,8 +33,12 @@ def normalize_url(url):
     return url
 
 
-def is_reachable(url, timeout=6):
-    # no error/fail status codes
+def is_trusted_url(url):
+    host = (urlparse(url).netloc or "").lower()
+    return any(host == suffix or host.endswith("." + suffix) for suffix in _TRUSTED_HOST_SUFFIXES)
+
+
+def is_reachable(url, timeout=5):
     url = normalize_url(url)
     if not url:
         return False
@@ -35,7 +47,7 @@ def is_reachable(url, timeout=6):
         response = requests.head(
             url, allow_redirects=True, timeout=timeout, headers=headers
         )
-        if response.status_code in (405, 403):
+        if response.status_code in (405, 403, 404):
             response = requests.get(
                 url,
                 allow_redirects=True,
@@ -49,22 +61,36 @@ def is_reachable(url, timeout=6):
         return False
 
 
-def resolve_profile_url(candidate, fallback=None):
+def safe_link(url, timeout=5):
+    """Return url only if it is trusted or responds successfully."""
+    url = normalize_url(url)
+    if not url:
+        return None
+    if is_trusted_url(url):
+        return url
+    return url if is_reachable(url, timeout=timeout) else None
+
+
+def validated_faculty_url(candidate):
+    """Return faculty page URL only when it responds successfully."""
     candidate = normalize_url(candidate)
-    if candidate and is_reachable(candidate):
+    if not candidate:
+        return None
+    return candidate if is_reachable(candidate) else None
+
+
+def resolve_profile_url(candidate, fallback=None):
+    candidate = validated_faculty_url(candidate)
+    if candidate:
         return candidate
     fallback = normalize_url(fallback)
     return fallback if fallback else None
 
 
-def paper_link(paper):
-    # semantic scholar paper
-    pdf = paper.get("openAccessPdf") or {}
-    pdf_url = (pdf.get("url") or "").strip()
-    if pdf_url.startswith(("http://", "https://")):
-        return pdf_url
-
+def paper_link(paper, verify_untrusted=True):
+    """Prefer stable catalog links (DOI, arXiv, etc.) over PDFs that may 404."""
     external = paper.get("externalIds") or {}
+
     doi = external.get("DOI")
     if doi:
         return f"https://doi.org/{doi.strip()}"
@@ -80,6 +106,13 @@ def paper_link(paper):
     paper_id = paper.get("paperId")
     if paper_id:
         return f"https://www.semanticscholar.org/paper/{paper_id}"
+
+    pdf = paper.get("openAccessPdf") or {}
+    pdf_url = (pdf.get("url") or "").strip()
+    if pdf_url.startswith(("http://", "https://")):
+        if not verify_untrusted:
+            return pdf_url
+        return safe_link(pdf_url)
 
     return None
 

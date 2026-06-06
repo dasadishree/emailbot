@@ -1,4 +1,5 @@
 # server
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from flask import Flask, request, jsonify, render_template
 import requests
 import json
@@ -6,7 +7,13 @@ import re
 from dotenv import load_dotenv
 import os
 
-from url_utils import normalize_url, resolve_profile_url, paper_link, normalize_email, is_reachable
+from url_utils import (
+    normalize_url,
+    paper_link,
+    normalize_email,
+    is_reachable,
+    validated_faculty_url,
+)
 
 load_dotenv()
 API_KEY = os.getenv("HACKCLUB_API_KEY")
@@ -52,6 +59,102 @@ def _sanitize_professor(prof):
         "email": normalize_email(prof.get("email")),
         "profile_url": normalize_url(prof.get("profile_url")),
     }
+
+
+def _fetch_scholar_meta(name):
+    try:
+        response = requests.get(
+            "https://api.semanticscholar.org/graph/v1/author/search",
+            params={
+                "query": name,
+                "limit": 10,
+                "fields": "name,paperCount,authorId,papers.year",
+            },
+            timeout=10,
+        )
+        if response.status_code != 200:
+            return {}
+        results = response.json().get("data", [])
+        author = _pick_best_author(results, name)
+        if not author:
+            return {}
+        papers = author.get("papers") or []
+        years = [p.get("year") for p in papers if p.get("year")]
+        author_id = author.get("authorId")
+        return {
+            "paper_count": author.get("paperCount") or len(papers),
+            "latest_year": max(years) if years else None,
+            "scholar_url": (
+                f"https://www.semanticscholar.org/author/{author_id}"
+                if author_id
+                else None
+            ),
+        }
+    except requests.RequestException:
+        return {}
+
+
+def _compute_info_score(prof, scholar):
+    score = 0
+    if prof.get("email"):
+        score += 25
+    if prof.get("profile_url"):
+        score += 25
+    elif scholar.get("scholar_url"):
+        score += 12
+
+    role = (prof.get("role") or "").lower()
+    if any(word in role for word in ("lab", "director", "head", "chair")):
+        score += 15
+    elif role and role not in ("professor", "faculty"):
+        score += 10
+    elif role:
+        score += 5
+
+    if prof.get("department"):
+        score += 5
+    if (prof.get("research_summary") or "").strip():
+        score += 5
+
+    topics = prof.get("topics") or []
+    score += min(len(topics) * 2, 10)
+
+    paper_count = scholar.get("paper_count") or 0
+    score += min(paper_count, 15)
+
+    latest_year = scholar.get("latest_year") or 0
+    if latest_year >= 2023:
+        score += 12
+    elif latest_year >= 2020:
+        score += 8
+    elif latest_year >= 2015:
+        score += 4
+
+    return score
+
+
+def _enrich_professor(prof):
+    profile_candidate = prof.get("profile_url")
+    prof["profile_url"] = validated_faculty_url(profile_candidate)
+    scholar = _fetch_scholar_meta(prof.get("name", ""))
+    prof["scholar_url"] = scholar.get("scholar_url")
+    prof["publication_count"] = scholar.get("paper_count", 0)
+    prof["latest_publication_year"] = scholar.get("latest_year")
+    prof["info_score"] = _compute_info_score(prof, scholar)
+    return prof
+
+
+def _enrich_and_rank_professors(professors):
+    if not professors:
+        return []
+    enriched = []
+    with ThreadPoolExecutor(max_workers=4) as executor:
+        futures = [executor.submit(_enrich_professor, prof) for prof in professors]
+        for future in as_completed(futures):
+            enriched.append(future.result())
+    enriched.sort(key=lambda prof: prof.get("info_score", 0), reverse=True)
+    return enriched
+
 
 @app.route("/")
 def home():
@@ -115,7 +218,8 @@ def search():
         if cleaned:
             filtered.append(cleaned)
 
-    return jsonify({"professors": filtered, "school": school})
+    ranked = _enrich_and_rank_professors(filtered)
+    return jsonify({"professors": ranked, "school": school})
 
 
 @app.route("/api/check-url")
@@ -187,7 +291,7 @@ def professor():
                 })
 
     candidate_profile = request.args.get("profile_url") or request.args.get("profileUrl")
-    profile_url = normalize_url(candidate_profile) or scholar_author_url
+    faculty_profile_url = validated_faculty_url(candidate_profile)
 
     return render_template(
         "professor.html",
@@ -197,7 +301,7 @@ def professor():
         department=request.args.get("department"),
         summary=request.args.get("summary"),
         email=normalize_email(request.args.get("email")),
-        profile_url=profile_url,
+        faculty_profile_url=faculty_profile_url,
         scholar_author_url=scholar_author_url,
         research_topics=topics_list,
         papers=papers,
