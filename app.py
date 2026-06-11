@@ -618,6 +618,152 @@ def search():
     })
 
 
+def _clean_email_text(raw_text):
+    text = _remove_think_blocks((raw_text or "").strip())
+    if text.startswith("```"):
+        text = re.sub(r"^```(?:\w+)?\s*", "", text, flags=re.IGNORECASE)
+        text = re.sub(r"\s*```$", "", text)
+    return text.strip()
+
+
+EMAIL_TEMPLATE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static", "email.txt")
+
+
+def _load_email_template():
+    with open(EMAIL_TEMPLATE_PATH, encoding="utf-8") as template_file:
+        return template_file.read()
+
+
+def _format_professor_salutation(name):
+    """Return name for use after 'Dear Dr.' in the template."""
+    name = (name or "").strip()
+    if not name:
+        return "[Professor Name]"
+    lowered = name.lower()
+    for prefix in ("dr.", "dr ", "professor", "prof."):
+        if lowered.startswith(prefix):
+            name = name[len(prefix) :].strip()
+            break
+    parts = name.split()
+    return parts[-1] if parts else name
+
+
+def _fetch_email_fields_from_ai(abstract, prof_name, professor_context):
+    response = requests.post(
+        "https://ai.hackclub.com/proxy/v1/chat/completions",
+        headers={
+            "Authorization": "Bearer " + API_KEY,
+            "Content-Type": "application/json",
+        },
+        json={
+            "model": "qwen/qwen3-32b",
+            "max_tokens": 1024,
+            "messages": [
+                {
+                    "role": "system",
+                    "content": (
+                        "You help fill in parts of a student outreach email. "
+                        "Respond with raw JSON only — no markdown, no backticks, no explanation. "
+                        'Schema: {"publication_name": "...", "study_sentence": "..."}'
+                    ),
+                },
+                {
+                    "role": "user",
+                    "content": f"""Read this abstract from Professor {prof_name}'s work.
+
+Professor context:
+{professor_context}
+
+Abstract:
+{abstract}
+
+Return JSON with:
+- publication_name: the paper title if stated in the abstract, otherwise a short accurate descriptive title for the study (in quotes is fine)
+- study_sentence: exactly ONE sentence from the perspective of a passionate high school student explaining what they found interesting and one or two specific details from the study. Do not start with "I was" or "I found". Write it so it flows after "I was particularly interested in your recent work: [title]." — e.g. "The way you applied X to Y was especially compelling because..."
+
+Only use facts from the abstract. Do not invent results.""",
+                },
+            ],
+        },
+        timeout=120,
+    )
+    response.raise_for_status()
+    raw_text = response.json()["choices"][0]["message"]["content"]
+    parsed = _parse_llm_json(raw_text)
+    publication_name = (parsed.get("publication_name") or "").strip()
+    study_sentence = (parsed.get("study_sentence") or "").strip()
+    if not publication_name or not study_sentence:
+        raise ValueError("Missing publication_name or study_sentence from AI")
+    return publication_name, study_sentence
+
+
+def _fill_email_template(template, prof_name, publication_name, study_sentence):
+    email_text = template.replace("{PROFESSOR NAME}", _format_professor_salutation(prof_name))
+    email_text = email_text.replace("{PUBLICATION NAME}", publication_name)
+    email_text = re.sub(
+        r"\{sentence about[^}]+\}",
+        study_sentence,
+        email_text,
+        flags=re.IGNORECASE,
+    )
+    return email_text.strip()
+
+
+@app.route("/generate-email", methods=["POST"])
+def generate_email():
+    payload = request.get_json(silent=True) or {}
+    abstract = (payload.get("abstract") or "").strip()
+    prof_name = (payload.get("prof_name") or "").strip() or "the professor"
+    school = (payload.get("school") or "").strip()
+    role = (payload.get("role") or "").strip()
+    topics = payload.get("topics") or []
+    summary = (payload.get("summary") or "").strip()
+
+    if not abstract:
+        return jsonify({"error": "Please paste an abstract first."}), 400
+    if not API_KEY:
+        return jsonify({"error": "Missing HACKCLUB_API_KEY in .env"}), 500
+
+    try:
+        template = _load_email_template()
+    except OSError:
+        return jsonify({"error": "Email template file (static/email.txt) not found."}), 500
+
+    if isinstance(topics, list):
+        topics_text = ", ".join(str(t) for t in topics if t)
+    else:
+        topics_text = str(topics).strip()
+
+    context_parts = []
+    if school:
+        context_parts.append(f"University: {school}")
+    if role:
+        context_parts.append(f"Role: {role}")
+    if topics_text:
+        context_parts.append(f"Research areas: {topics_text}")
+    if summary:
+        context_parts.append(f"Research summary: {summary}")
+    professor_context = "\n".join(context_parts) or "No extra professor details provided."
+
+    try:
+        publication_name, study_sentence = _fetch_email_fields_from_ai(
+            abstract, prof_name, professor_context
+        )
+        email_text = _fill_email_template(
+            template, prof_name, publication_name, study_sentence
+        )
+        return jsonify({"email": email_text})
+    except requests.HTTPError as exc:
+        return jsonify({"error": _ai_error_message(exc, exc.response)}), 502
+    except requests.RequestException as exc:
+        response = getattr(exc, "response", None)
+        return jsonify({"error": _ai_error_message(exc, response)}), 502
+    except (KeyError, IndexError, json.JSONDecodeError, TypeError, ValueError):
+        return jsonify({
+            "error": "Could not fill in the publication details from the abstract. Try again or paste a clearer abstract."
+        }), 502
+
+
 @app.route("/api/check-url")
 def check_url():
     url = normalize_url(request.args.get("url"))

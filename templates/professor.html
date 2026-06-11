@@ -64,6 +64,14 @@
                     {% endif %}
                 </div>
 
+                <div class="notes-divider"></div>
+                <div class="notes-tag" style="margin-top:14px">DRAFT EMAIL</div>
+                <p style="font-size:12px; color:#666; margin-bottom:8px">Paste an abstract from one of their papers:</p>
+                <textarea id="abstract-input" placeholder="Paste abstract here..."></textarea>
+                <button class="notes-email-btn" onclick="generateEmail()">Generate email</button>
+                <div id="email-output"></div>
+                <button class="copy-btn" id="copy-btn" onclick="copyEmail()">Copy email</button>
+
                 <div class="prof-sidebar-card" id="prof-links-card" {% if not faculty_profile_url and not scholar_author_url %}style="display:none"{% endif %}>
                     <div class="prof-sidebar-section">
                         <h3>Links</h3>

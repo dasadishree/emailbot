@@ -149,3 +149,69 @@
 
     refreshLinks();
 })();
+
+function getProfDetail() {
+    const raw = localStorage.getItem("profDetail");
+    if (!raw) return {};
+    try {
+        return JSON.parse(raw);
+    } catch {
+        return {};
+    }
+}
+
+async function generateEmail() {
+    const abstract = document.getElementById("abstract-input").value.trim();
+    const output = document.getElementById("email-output");
+    const copyBtn = document.getElementById("copy-btn");
+
+    if (!abstract) {
+        output.textContent = "Please paste an abstract first.";
+        output.classList.add("visible");
+        return;
+    }
+
+    const prof = getProfDetail();
+    const nameEl = document.querySelector(".prof-sidebar-name");
+    const profName = (prof.name || (nameEl && nameEl.textContent.trim()) || "the professor");
+
+    output.textContent = "Generating email...";
+    output.classList.add("visible");
+    copyBtn.classList.remove("visible");
+
+    try {
+        const response = await fetch("/generate-email", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                abstract,
+                prof_name: profName,
+                school: prof.school || "",
+                role: prof.role || "",
+                topics: prof.topics || [],
+                summary: prof.summary || "",
+            }),
+        });
+        const data = await response.json();
+        if (!response.ok) {
+            output.textContent = data.error || "Failed to generate email. Try again.";
+            return;
+        }
+        if (data.email) {
+            output.textContent = data.email;
+            copyBtn.classList.add("visible");
+        } else {
+            output.textContent = data.error || "Something went wrong, try again.";
+        }
+    } catch (err) {
+        output.textContent = "Failed to generate email. Is the server running?";
+    }
+}
+
+function copyEmail() {
+    const output = document.getElementById("email-output")
+    navigator.clipboard.writeText(output.textContent)
+    const btn = document.getElementById("copy-btn")
+    btn.textContent = "Copied!"
+    setTimeout(() => btn.textContent = "Copy email", 2000)
+}

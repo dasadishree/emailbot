@@ -1,0 +1,19 @@
+Dear Dr. {PROFESSOR NAME},
+My name is Adishree Das and I am a junior at Herricks High School located on Long Island, New York, currently participating in my school's Independent Science Research program under the direction of Ms. Caitilin Etri. This honors elective course is designed for driven students passionate about scientific research and innovation.
+
+I was particularly interested in your recent work: "{PUBLICATION NAME}". {sentence about something specific to the study feom the point of view from a passionate high schooler, for example what i found interesting and details about the study}. I'd love to potentially contribute to your lab's ongoing reseearch across other real-world tasks.
+
+I plan to write a scientific research paper upon concluding an indepenent research project under the guidance of a mentor. I hope to participate in various prestigious science competitions, such as the International Science and Engineering Fairs and the Regeneron Science Talent Search. I have experience working with research, having done data analysis in a computational cognition lab last summer with a professor from Rutgers which concluded in writing an independent paper.
+
+Would you be interested in mentoring me this upcoming summer? I am available from late June - late August, Monday-Friday from 9am-5pm. I am flexible to change my schedule to suit the needs of the project. If so, I would love to meet with you to discuss potential involvement in your lab.
+
+Attached are copies of my resume and transcript. I look forward to heaing from you. Thank you in advance for your time and consideration!
+
+Sincerely, 
+Adishree Das
+
+Reference:
+Caitlin Etri
+Science Research Coordinator
+Herricks High School, New Hyde Park, NY
+cetri@herricks.org
