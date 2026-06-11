@@ -150,6 +150,21 @@
     refreshLinks();
 })();
 
+function checkGate() {
+    const input = document.getElementById("gate-input");
+    const drafter = document.getElementById("email-drafter");
+    const gate = document.getElementById("email-gate");
+    const error = document.getElementById("gate-error");
+    if(!input) return;
+    if(input.value.trim().toLowerCase()==="i am adishree") {
+        drafter.style.display = "block";
+        gate.style.display = "none";
+    } else{
+        drafter.style.display = "none";
+        error.style.display = input.value.length>0?"block":"none";
+    }
+}
+
 function getProfDetail() {
     const raw = localStorage.getItem("profDetail");
     if (!raw) return {};

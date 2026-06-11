@@ -25,6 +25,7 @@ app = Flask(__name__)
 _SCHOLAR_CACHE = {}
 _scholar_lock = threading.Lock()
 
+# messages to give to user 
 SCHOLAR_RATE_LIMIT_MSG = (
     "Publications could not be loaded — Semantic Scholar's API rate limit was reached. "
     "Wait a minute and try again."
@@ -633,9 +634,8 @@ def _load_email_template():
     with open(EMAIL_TEMPLATE_PATH, encoding="utf-8") as template_file:
         return template_file.read()
 
-
+# professors name / greeting
 def _format_professor_salutation(name):
-    """Return name for use after 'Dear Dr.' in the template."""
     name = (name or "").strip()
     if not name:
         return "[Professor Name]"

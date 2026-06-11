@@ -5,6 +5,7 @@ import requests
 
 _USER_AGENT = "ResearchEmailBot/1.0 (educational project)"
 
+# prioritize safe/known sources
 _TRUSTED_HOST_SUFFIXES = (
     "doi.org",
     "arxiv.org",
@@ -14,6 +15,7 @@ _TRUSTED_HOST_SUFFIXES = (
 )
 
 
+# lots of checks to make sure url is working 
 def normalize_url(url):
     # return working url
     if not url or not isinstance(url, str):
@@ -32,11 +34,9 @@ def normalize_url(url):
         return None
     return url
 
-
 def is_trusted_url(url):
     host = (urlparse(url).netloc or "").lower()
     return any(host == suffix or host.endswith("." + suffix) for suffix in _TRUSTED_HOST_SUFFIXES)
-
 
 def is_reachable(url, timeout=5):
     url = normalize_url(url)
@@ -60,9 +60,7 @@ def is_reachable(url, timeout=5):
     except requests.RequestException:
         return False
 
-
 def safe_link(url, timeout=5):
-    """Return url only if it is trusted or responds successfully."""
     url = normalize_url(url)
     if not url:
         return None
@@ -70,14 +68,11 @@ def safe_link(url, timeout=5):
         return url
     return url if is_reachable(url, timeout=timeout) else None
 
-
 def validated_faculty_url(candidate):
-    """Return faculty page URL only when it responds successfully."""
     candidate = normalize_url(candidate)
     if not candidate:
         return None
     return candidate if is_reachable(candidate) else None
-
 
 def resolve_profile_url(candidate, fallback=None):
     candidate = validated_faculty_url(candidate)
@@ -86,9 +81,8 @@ def resolve_profile_url(candidate, fallback=None):
     fallback = normalize_url(fallback)
     return fallback if fallback else None
 
-
+# make sure link to paper is working
 def paper_link(paper, verify_untrusted=True):
-    """Prefer stable catalog links (DOI, arXiv, etc.) over PDFs that may 404."""
     external = paper.get("externalIds") or {}
 
     doi = external.get("DOI")

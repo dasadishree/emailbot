@@ -50,10 +50,6 @@
                 </div>
 
                 <div class="notes-card">
-                    <div class="notes-header">
-                        <span>← Notes</span>
-                        <span>...</span>
-                    </div>
                     <div class="notes-tag">EMAILING</div>
 
                     {% if email %}
@@ -65,28 +61,33 @@
                 </div>
 
                 <div class="notes-divider"></div>
-                <div class="notes-tag" style="margin-top:14px">DRAFT EMAIL</div>
-                <p style="font-size:12px; color:#666; margin-bottom:8px">Paste an abstract from one of their papers:</p>
-                <textarea id="abstract-input" placeholder="Paste abstract here..."></textarea>
-                <button class="notes-email-btn" onclick="generateEmail()">Generate email</button>
-                <div id="email-output"></div>
-                <button class="copy-btn" id="copy-btn" onclick="copyEmail()">Copy email</button>
+                    <div id="email-gate">
+                        <input type="text" id="gate-input" placeholder="" style="width:100%;padding:10px;font-size:13px;border:1px solid #ccc;border-radius:8px; font-family: sans-serif;" oninput="checkGate()"/>
+                    </div>
 
-                <div class="prof-sidebar-card" id="prof-links-card" {% if not faculty_profile_url and not scholar_author_url %}style="display:none"{% endif %}>
-                    <div class="prof-sidebar-section">
-                        <h3>Links</h3>
-                        <div id="prof-links">
-                            {% if faculty_profile_url %}
+                    <div id="email-drafter" style="display:none">
+                        <div class="notes-tag" style="margin-top:14px">DRAFT EMAIL</div>
+                        <textarea id="abstract-input" placeholder="Paste abstract here..."></textarea>
+                        <button class="notes-email-btn" onclick="generateEmail()">Generate email</button>
+                        <div id="email-output"></div>
+                        <button class="copy-btn" id="copy-btn" onclick="copyEmail()">Copy email</button>
+                    </div>
+
+                    <div class="prof-sidebar-card" id="prof-links-card" {% if not faculty_profile_url and not scholar_author_url %}style="display:none"{% endif %}>
+                        <div class="prof-sidebar-section">
+                            <h3>Links</h3>
+                            <div id="prof-links">
+                                {% if faculty_profile_url %}
                                 <a href="{{ faculty_profile_url }}" target="_blank" rel="noopener noreferrer" class="prof-link" data-link-type="faculty">Faculty Profile</a><br>
-                            {% endif %}
-                            {% if scholar_author_url %}
-                                <a href="{{ scholar_author_url }}" target="_blank" rel="noopener noreferrer" class="prof-link" data-link-type="scholar">Semantic Scholar</a>
-                            {% endif %}
+                                {% endif %}
+                                {% if scholar_author_url %}
+                                <a href="{{scholar_author_url}}" target="_blank" rel="noopener noreferrer" class="prof-link" data-link-type="scholar">Semantic Scholar</a>
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
         <script src="/static/professor.js"></script>
     </body>
 </html>
